@@ -210,7 +210,7 @@ export const LoginPage: React.FC = () => {
               </div>
 
               {/* STEP 1: INITIAL LOGIN */}
-              {step === 'LOGIN' && (
+              {step === 'LOGIN' && authMode === 'COUNCIL' && (
                 <form onSubmit={handleInitialSubmit} className="space-y-4 text-xs">
                   {/* Officer User Select / Input */}
                   <div>
@@ -325,6 +325,64 @@ export const LoginPage: React.FC = () => {
                     </button>
                   </div>
                 </form>
+              )}
+
+              {/* STEP 1: JAN PARICHAY (MeriPehchan SSO) INTERFACE */}
+              {step === 'LOGIN' && authMode === 'PARICHAY' && (
+                <div className="space-y-4 text-xs animate-in fade-in">
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-950/80 to-slate-900 border border-indigo-500/30 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-0.5 rounded font-extrabold text-[10px] bg-gradient-to-r from-orange-500 via-white to-green-600 text-slate-950">
+                        MeriPehchan
+                      </span>
+                      <span className="font-bold text-white text-xs">National Single Sign-On (NSSO)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      Jan Parichay authentication gateway for Central Ministry & Statutory Body officers using Government Employee Identity (`@gov.in` / `@nic.in`).
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1">
+                        Jan Parichay User ID / Registered Mobile
+                      </label>
+                      <input
+                        type="text"
+                        defaultValue="98102XXXX8 (Dr. Ramesh Chandra)"
+                        className="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1">
+                        Official NIC / Council ID
+                      </label>
+                      <input
+                        type="text"
+                        readOnly
+                        value="ramesh.chandra@nic.in (Mapped to RB Bureau)"
+                        className="w-full p-2.5 rounded-xl bg-slate-800/60 border border-slate-700 text-slate-400 font-mono text-[11px]"
+                      />
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700 text-[11px] text-slate-400 flex items-start space-x-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>
+                        Authenticated via National Informatics Centre (NIC) DigiLocker & e-Pramaan Token Protocol.
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleQuickLogin(users[0])}
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-xs shadow-lg transition-all flex items-center justify-center space-x-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Authenticate with Jan Parichay SSO Token</span>
+                    </button>
+                  </div>
+                </div>
               )}
 
               {/* STEP 2: 2FA / OTP VERIFICATION */}
