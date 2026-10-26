@@ -15,9 +15,11 @@ import { ReportsView } from './components/reports/ReportsView';
 import { BulkUploadView } from './components/bulk/BulkUploadView';
 import { CitizenTracker } from './components/public/CitizenTracker';
 import { AdminSettings } from './components/admin/AdminSettings';
+import { LoginPage } from './components/auth/LoginPage';
 
 export const AppContent: React.FC = () => {
   const { 
+    isAuthenticated,
     activeTab, 
     setActiveTab, 
     selectedCaseId, 
@@ -29,6 +31,11 @@ export const AppContent: React.FC = () => {
   } = useApp();
 
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+  // If not authenticated, display official Login Page
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
 
   const handleOpenCase = (id: string) => {
     setSelectedCaseId(id);

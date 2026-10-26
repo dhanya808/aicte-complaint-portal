@@ -26,6 +26,8 @@ interface AppContextType {
   overlaps: OverlapGroup[];
   users: UserProfile[];
   currentUser: UserProfile;
+  isAuthenticated: boolean;
+  sessionTimeLeft: number;
   notifications: NotificationItem[];
   language: 'EN' | 'HI';
   theme: 'light' | 'dark';
@@ -36,6 +38,8 @@ interface AppContextType {
   selectedOverlapId: string | null;
   
   // Actions
+  login: (user: UserProfile) => void;
+  logout: () => void;
   setActiveTab: (tab: string) => void;
   setGlobalSearch: (q: string) => void;
   setSelectedCaseId: (id: string | null) => void;
@@ -82,7 +86,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [users] = useState<UserProfile[]>(INITIAL_USERS);
-  const [currentUser, setCurrentUser] = useState<UserProfile>(INITIAL_USERS[0]); // default to RB Officer
+  const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
+    const saved = localStorage.getItem('aicte_current_user');
+    return saved ? JSON.parse(saved) : INITIAL_USERS[0];
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('aicte_auth') === 'true';
+  });
+  const [sessionTimeLeft, setSessionTimeLeft] = useState<number>(900); // 15 mins
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
   const [language, setLanguage] = useState<'EN' | 'HI'>('EN');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -118,9 +129,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
+  // Session countdown timer
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const timer = setInterval(() => {
+      setSessionTimeLeft(prev => {
+        if (prev <= 1) {
+          logout();
+          return 900;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isAuthenticated]);
+
+  const login = (user: UserProfile) => {
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+    setSessionTimeLeft(900);
+    localStorage.setItem('aicte_auth', 'true');
+    localStorage.setItem('aicte_current_user', JSON.stringify(user));
+
+    // Role-based landing tab
+    if (user.role === 'REGIONAL_OFFICER') {
+      setActiveTab('map');
+    } else if (user.role === 'ADMIN') {
+      setActiveTab('admin');
+    } else {
+      setActiveTab('dashboard');
+    }
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('aicte_auth');
+    localStorage.removeItem('aicte_current_user');
+  };
+
   const switchUserRole = (userId: string) => {
     const found = users.find(u => u.id === userId);
-    if (found) setCurrentUser(found);
+    if (found) {
+      setCurrentUser(found);
+      localStorage.setItem('aicte_current_user', JSON.stringify(found));
+    }
   };
 
   // Add Case
@@ -379,6 +431,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         overlaps,
         users,
         currentUser,
+        isAuthenticated,
+        sessionTimeLeft,
         notifications,
         language,
         theme,
@@ -387,6 +441,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         selectedCaseId,
         selectedInstitutionId,
         selectedOverlapId,
+        login,
+        logout,
         setActiveTab,
         setGlobalSearch,
         setSelectedCaseId,

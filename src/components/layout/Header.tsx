@@ -12,7 +12,9 @@ import {
   ChevronDown, 
   ExternalLink,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  LogOut,
+  Clock
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -28,7 +30,9 @@ export const Header: React.FC = () => {
     globalSearch, 
     setGlobalSearch,
     setActiveTab,
-    setSelectedCaseId
+    setSelectedCaseId,
+    sessionTimeLeft,
+    logout
   } = useApp();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -254,6 +258,27 @@ export const Header: React.FC = () => {
               </div>
             )}
           </div>
+          {/* Session Timer */}
+          <div className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[11px] font-mono text-slate-500">
+            <Clock className="w-3.5 h-3.5 text-amber-500" />
+            <span>
+              {Math.floor(sessionTimeLeft / 60)}:
+              {(sessionTimeLeft % 60).toString().padStart(2, '0')}
+            </span>
+          </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={() => {
+              if (confirm('Are you sure you want to log out of the AICTE Council Portal?')) {
+                logout();
+              }
+            }}
+            className="p-2 rounded-lg text-slate-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 dark:text-slate-400 transition-colors"
+            title="Log Out of Session"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </header>
